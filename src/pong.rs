@@ -12,7 +12,7 @@ pub const ARENA_WIDTH: f32 = 100.0;
 pub const PADDLE_HEIGHT: f32 = 16.0;
 pub const PADDLE_WIDTH: f32 = 4.0;
 
-pub(crate) struct Pong;
+pub struct Pong;
 
 impl SimpleState for Pong {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
@@ -41,7 +41,7 @@ pub enum Side {
 
 #[derive(PartialEq)]
 pub struct Paddle {
-    side: Side,
+    pub side: Side,
     width: f32,
     height: f32,
 }
