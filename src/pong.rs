@@ -78,8 +78,6 @@ fn initialize_paddles(world: &mut World, sprite_sheet: Handle<SpriteSheet>, spri
         sprite_number,
     };
 
-    world.register::<Paddle>();
-
     world.create_entity()
         .with(Paddle::new(Side::Left))
         .with(left)
