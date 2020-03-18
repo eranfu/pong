@@ -11,7 +11,7 @@ use amethyst::{
 };
 
 use crate::pong::Pong;
-use crate::systems::PaddleSystem;
+use crate::systems::{MoveBallSystem, PaddleSystem};
 
 mod pong;
 mod systems;
@@ -27,6 +27,7 @@ fn main() -> amethyst::Result<()>
     let game_data_builder = GameDataBuilder::new()
         .with_bundle(InputBundle::<StringBindings>::new().with_bindings_from_file(config_dir.join("bindings.ron"))?)?
         .with(PaddleSystem, "paddle_system", &["input_system"])
+        .with(MoveBallSystem, "ball_system", &[])
         .with_bundle(TransformBundle::new())?
         .with_bundle(RenderingBundle::<DefaultBackend>::new()
             .with_plugin(RenderToWindow::from_config_path(display_config_path).with_clear([0.00196, 0.23726, 0.21765, 1.0]))

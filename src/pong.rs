@@ -1,6 +1,6 @@
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
-    core::transform::Transform,
+    core::{math::Vector2, transform::Transform},
     ecs::prelude::{Component, DenseVecStorage},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
@@ -12,6 +12,10 @@ pub const ARENA_WIDTH: f32 = 100.0;
 pub const PADDLE_HEIGHT: f32 = 16.0;
 pub const PADDLE_WIDTH: f32 = 4.0;
 
+pub const BALL_VELOCITY_X: f32 = 75.0;
+pub const BALL_VELOCITY_Y: f32 = 50.0;
+pub const BALL_RADIUS: f32 = 2.0;
+
 pub struct Pong;
 
 impl SimpleState for Pong {
@@ -19,7 +23,8 @@ impl SimpleState for Pong {
         let world = data.world;
         initialize_camera(world);
         let sprite_sheet = load_sprite_sheet(world);
-        initialize_paddles(world, sprite_sheet, 0);
+        initialize_paddles(world, sprite_sheet.clone(), 0);
+        initialize_ball(world, sprite_sheet, 1);
     }
 }
 
@@ -105,4 +110,38 @@ fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
     };
 
     sprite_sheet
+}
+
+pub struct Ball {
+    pub velocity: Vector2<f32>,
+    pub radius: f32,
+}
+
+impl Default for Ball {
+    fn default() -> Self {
+        Ball {
+            velocity: Vector2::new(BALL_VELOCITY_X, BALL_VELOCITY_Y),
+            radius: BALL_RADIUS,
+        }
+    }
+}
+
+impl Component for Ball {
+    type Storage = DenseVecStorage<Self>;
+}
+
+fn initialize_ball(world: &mut World, sprite_sheet: Handle<SpriteSheet>, sprite_number: usize) {
+    world.create_entity()
+        .with(Ball::default())
+        .with({
+            let mut transform = Transform::default();
+            transform.set_translation_x(ARENA_WIDTH / 2.0);
+            transform.set_translation_y(ARENA_HEIGHT / 2.0);
+            transform
+        })
+        .with(SpriteRender {
+            sprite_sheet,
+            sprite_number,
+        })
+        .build();
 }
