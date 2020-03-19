@@ -1,6 +1,6 @@
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
-    core::{math::Vector2, transform::Transform},
+    core::{math::Vector2, Time, transform::Transform},
     ecs::prelude::{Component, DenseVecStorage},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
@@ -9,22 +9,43 @@ use amethyst::{
 pub const ARENA_HEIGHT: f32 = 100.0;
 pub const ARENA_WIDTH: f32 = 100.0;
 
-pub const PADDLE_HEIGHT: f32 = 16.0;
-pub const PADDLE_WIDTH: f32 = 4.0;
+pub const PADDLE_SPEED: f32 = 60.0;
+const PADDLE_HEIGHT: f32 = 16.0;
+const PADDLE_WIDTH: f32 = 4.0;
 
-pub const BALL_VELOCITY_X: f32 = 75.0;
-pub const BALL_VELOCITY_Y: f32 = 50.0;
-pub const BALL_RADIUS: f32 = 2.0;
+const BALL_VELOCITY_X: f32 = 75.0;
+const BALL_VELOCITY_Y: f32 = 50.0;
+const BALL_RADIUS: f32 = 2.0;
 
-pub struct Pong;
+#[derive(Default)]
+pub struct Pong {
+    ball_spawn_timer: Option<f32>,
+    sprite_sheet: Option<Handle<SpriteSheet>>,
+}
 
 impl SimpleState for Pong {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
+        self.ball_spawn_timer.replace(1.0);
+        self.sprite_sheet.replace(load_sprite_sheet(world));
         initialize_camera(world);
-        let sprite_sheet = load_sprite_sheet(world);
+        let sprite_sheet = self.sprite_sheet.clone().unwrap();
         initialize_paddles(world, sprite_sheet.clone(), 0);
-        initialize_ball(world, sprite_sheet, 1);
+    }
+
+    fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
+        if let Some(timer) = self.ball_spawn_timer.take() {
+            let timer = {
+                let time = data.world.read_resource::<Time>();
+                timer - time.delta_seconds()
+            };
+            if timer <= 0.0 {
+                initialize_ball(&mut data.world, self.sprite_sheet.clone().unwrap(), 1);
+            } else {
+                self.ball_spawn_timer.replace(timer);
+            }
+        }
+        Trans::None
     }
 }
 
@@ -47,8 +68,8 @@ pub enum Side {
 #[derive(PartialEq)]
 pub struct Paddle {
     pub side: Side,
-    width: f32,
-    height: f32,
+    pub width: f32,
+    pub height: f32,
 }
 
 impl Paddle {

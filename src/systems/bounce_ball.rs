@@ -3,7 +3,7 @@ use amethyst::{
     ecs::{Join, ReadStorage, System, WriteStorage},
 };
 
-use crate::pong::{ARENA_HEIGHT, Ball, Paddle, PADDLE_HEIGHT, PADDLE_WIDTH, Side};
+use crate::pong::{ARENA_HEIGHT, Ball, Paddle, Side};
 
 pub struct BounceBallSystem;
 
@@ -26,8 +26,8 @@ impl<'s> System<'s> for BounceBallSystem {
                 let paddle_translation = paddle_transform.translation();
                 if is_in_rect(
                     &Vector2::new(ball_translation.x, ball_translation.y),
-                    &Vector2::new(paddle_translation.x - 0.5 * PADDLE_WIDTH - ball.radius, paddle_translation.y - 0.5 * PADDLE_HEIGHT - ball.radius),
-                    &Vector2::new(paddle_translation.x + 0.5 * PADDLE_WIDTH + ball.radius, paddle_translation.y + 0.5 * PADDLE_HEIGHT + ball.radius),
+                    &Vector2::new(paddle_translation.x - 0.5 * paddle.width - ball.radius, paddle_translation.y - 0.5 * paddle.height - ball.radius),
+                    &Vector2::new(paddle_translation.x + 0.5 * paddle.width + ball.radius, paddle_translation.y + 0.5 * paddle.height + ball.radius),
                 ) {
                     match paddle.side {
                         Side::Left => {
