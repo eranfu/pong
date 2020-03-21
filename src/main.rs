@@ -7,6 +7,7 @@ use amethyst::{
         RenderingBundle,
         types::DefaultBackend,
     },
+    ui::{RenderUi, UiBundle},
     utils::application_root_dir,
 };
 
@@ -31,9 +32,11 @@ fn main() -> amethyst::Result<()>
         .with(BounceBallSystem, "bounce_ball_system", &["paddle_system", "move_ball_system"])
         .with(WinnerSystem, "winner_system", &["bounce_ball_system"])
         .with_bundle(TransformBundle::new())?
+        .with_bundle(UiBundle::<StringBindings>::new())?
         .with_bundle(RenderingBundle::<DefaultBackend>::new()
             .with_plugin(RenderToWindow::from_config_path(display_config_path).with_clear([0.00196, 0.23726, 0.21765, 1.0]))
-            .with_plugin(RenderFlat2D::default()))?;
+            .with_plugin(RenderFlat2D::default())
+            .with_plugin(RenderUi::default()))?;
 
     let mut game = Application::new(assets_dir, Pong::default(), game_data_builder)?;
     game.run();
