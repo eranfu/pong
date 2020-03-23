@@ -1,7 +1,7 @@
 use amethyst::{
     audio::{AudioBundle, DjSystemDesc},
     core::transform::bundle::TransformBundle,
-    input::{InputBundle, StringBindings},
+    input::InputBundle,
     prelude::*,
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
@@ -13,10 +13,12 @@ use amethyst::{
 };
 
 use crate::audio::Music;
+use crate::input::PongBindings;
 use crate::pong::Pong;
 use crate::systems::{BounceBallSystem, MoveBallSystem, PaddleSystem, WinnerSystem};
 
 mod pong;
+mod input;
 mod systems;
 mod audio;
 
@@ -29,13 +31,13 @@ fn main() -> amethyst::Result<()>
     let assets_dir = root_dir.join("assets");
 
     let game_data_builder = GameDataBuilder::new()
-        .with_bundle(InputBundle::<StringBindings>::new().with_bindings_from_file(config_dir.join("bindings.ron"))?)?
+        .with_bundle(InputBundle::<PongBindings>::new().with_bindings_from_file(config_dir.join("bindings.ron"))?)?
         .with(PaddleSystem, "paddle_system", &["input_system"])
         .with(MoveBallSystem, "move_ball_system", &[])
         .with(BounceBallSystem, "bounce_ball_system", &["paddle_system", "move_ball_system"])
         .with(WinnerSystem, "winner_system", &["bounce_ball_system"])
         .with_bundle(TransformBundle::new())?
-        .with_bundle(UiBundle::<StringBindings>::new())?
+        .with_bundle(UiBundle::<PongBindings>::new())?
         .with_bundle(RenderingBundle::<DefaultBackend>::new()
             .with_plugin(RenderToWindow::from_config_path(display_config_path).with_clear([0.00196, 0.23726, 0.21765, 1.0]))
             .with_plugin(RenderFlat2D::default())

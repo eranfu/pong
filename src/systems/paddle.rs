@@ -1,8 +1,9 @@
 use amethyst::core::{SystemDesc, Time, transform::Transform};
 use amethyst::derive::SystemDesc;
 use amethyst::ecs::{Join, Read, ReadStorage, System, SystemData, World, WriteStorage};
-use amethyst::input::{InputHandler, StringBindings};
+use amethyst::input::InputHandler;
 
+use crate::input::{AxisBinding, PongBindings};
 use crate::pong::{ARENA_HEIGHT, Paddle, PADDLE_SPEED, Side};
 
 #[derive(SystemDesc)]
@@ -12,7 +13,7 @@ impl<'s> System<'s> for PaddleSystem {
     type SystemData = (
         WriteStorage<'s, Transform>,
         ReadStorage<'s, Paddle>,
-        Read<'s, InputHandler<StringBindings>>,
+        Read<'s, InputHandler<PongBindings>>,
         Read<'s, Time>,
     );
 
@@ -20,8 +21,8 @@ impl<'s> System<'s> for PaddleSystem {
         for (transform, paddle) in (&mut transform_storage, &paddle_storage).join() {
             let transform = transform as &mut Transform;
             let movement = match paddle.side {
-                Side::Left => input_handler.axis_value("left_paddle"),
-                Side::Right => input_handler.axis_value("right_paddle")
+                Side::Left => input_handler.axis_value(&AxisBinding::Vertical(0)),
+                Side::Right => input_handler.axis_value(&AxisBinding::Vertical(1))
             };
 
             if let Some(movement) = movement {
