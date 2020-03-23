@@ -1,5 +1,5 @@
 use amethyst::{
-    audio::AudioBundle,
+    audio::{AudioBundle, DjSystemDesc},
     core::transform::bundle::TransformBundle,
     input::{InputBundle, StringBindings},
     prelude::*,
@@ -12,6 +12,7 @@ use amethyst::{
     utils::application_root_dir,
 };
 
+use crate::audio::Music;
 use crate::pong::Pong;
 use crate::systems::{BounceBallSystem, MoveBallSystem, PaddleSystem, WinnerSystem};
 
@@ -39,7 +40,8 @@ fn main() -> amethyst::Result<()>
             .with_plugin(RenderToWindow::from_config_path(display_config_path).with_clear([0.00196, 0.23726, 0.21765, 1.0]))
             .with_plugin(RenderFlat2D::default())
             .with_plugin(RenderUi::default()))?
-        .with_bundle(AudioBundle::default())?;
+        .with_bundle(AudioBundle::default())?
+        .with_system_desc(DjSystemDesc::new(|music: &mut Music| music.music.next()), "dj_system", &[]);
 
     let mut game = Application::new(assets_dir, Pong::default(), game_data_builder)?;
     game.run();
