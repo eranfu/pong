@@ -1,9 +1,14 @@
+use std::ops::Deref;
+
 use amethyst::{
+    assets::AssetStorage,
+    audio::{output::Output, Source},
     core::transform::Transform,
-    ecs::{Join, ReadExpect, System, Write, WriteStorage},
+    ecs::{Join, Read, ReadExpect, System, Write, WriteStorage},
     ui::UiText,
 };
 
+use crate::audio::{play_score_sound, Sounds};
 use crate::pong::{ARENA_WIDTH, Ball, ScoreBoard, ScoreText};
 
 pub struct WinnerSystem;
@@ -15,9 +20,12 @@ impl<'s> System<'s> for WinnerSystem {
         WriteStorage<'s, UiText>,
         Write<'s, ScoreBoard>,
         ReadExpect<'s, ScoreText>,
+        ReadExpect<'s, Sounds>,
+        Read<'s, AssetStorage<Source>>,
+        Option<Read<'s, Output>>,
     );
 
-    fn run(&mut self, (mut ball_storage, mut transform_storage, mut text_storage, mut score_board, score_text): Self::SystemData) {
+    fn run(&mut self, (mut ball_storage, mut transform_storage, mut text_storage, mut score_board, score_text, sounds, source_storage, output): Self::SystemData) {
         for (ball, transform) in (&mut ball_storage, &mut transform_storage).join() {
             let did_hit = {
                 let ball_x = transform.translation().x;
@@ -41,6 +49,7 @@ impl<'s> System<'s> for WinnerSystem {
             if did_hit {
                 ball.velocity.x = -ball.velocity.x;
                 transform.set_translation_x(ARENA_WIDTH / 2.0);
+                play_score_sound(&sounds, &source_storage, output.as_ref().map(|o| o.deref()));
 
                 println!("Score: | {} | {} |", score_board.score_left, score_board.score_right);
             }

@@ -30,6 +30,14 @@ pub fn play_bounce_sound(sounds: &Sounds, sound_storage: &AssetStorage<Source>, 
     }
 }
 
+pub fn play_score_sound(sounds: &Sounds, sound_storage: &AssetStorage<Source>, output: Option<&Output>) {
+    if let Some(output) = output {
+        if let Some(sound) = sound_storage.get(&sounds.score_sfx) {
+            output.play_once(sound, 1.0);
+        }
+    }
+}
+
 fn load_audio_track(loader: &Loader, world: &World, path: &str) -> SourceHandle {
     loader.load(path, OggFormat, (), &world.read_resource())
 }
